@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+const { query, validationResult } = require("express-validator");
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -34,11 +35,20 @@ router.get("/piso/:piso/puerta/:puerta", (req, res, next) => {
   res.send("ok");
 });
 
-router.get("/en-query-string", (req, res, next) => {
-  const orderBy = req.query.orderby;
-  const numero = req.query.solo;
-  res.send("Ordenar por " + orderBy + " sacar solo " + numero);
-});
+router.get(
+  "/en-query-string",
+  [
+    //validaciones
+    query("orderby").isAlphanumeric().withMessage("must be alphanumeric"),
+    query("solo").isNumeric().withMessage("must be a number"),
+  ],
+  (req, res, next) => {
+    validationResult(req).throw();
+    const orderBy = req.query.orderby;
+    const numero = req.query.solo;
+    res.send("Ordenar por " + orderBy + " sacar solo " + numero);
+  }
+);
 
 router.post("/en-el-body", (req, res, next) => {
   console.log(req.body);
